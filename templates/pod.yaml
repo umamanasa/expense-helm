@@ -7,4 +7,4 @@ metadata:
 spec:
   containers:
     - name: {{ .Values.component }}
-      image: rkalluru/{{ .Values.component }}
+      image: 206243364202.dkr.ecr.us-east-1.amazonaws.com/{{ .Values.component }}
