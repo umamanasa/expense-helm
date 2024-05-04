@@ -5,6 +5,11 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.component }}
 spec:
+  serviceAccountName: {{ .Values.component }}
   containers:
     - name: {{ .Values.component }}
-      image: 206243364202.dkr.ecr.us-east-1.amazonaws.com/{{ .Values.component }}
+      image: 206243364202.dkr.ecr.us-east-1.amazonaws.com/{{ .Values.component }}:{{ .Values.APP_VERSION }}
+
+  initContainers:
+    - name: expense-ps-init-cont
+      image: 206243364202.dkr.ecr.us-east-1.amazonaws.com/expense-ps-init-cont:2.0.0
