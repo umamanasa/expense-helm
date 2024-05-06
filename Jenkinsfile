@@ -15,7 +15,7 @@ pipeline {
 
     stage('Get KubeConfig') {
       steps {
-        sh 'aws eks update-kubeconfig --name ${ENV}-roboshop'
+        sh 'aws eks update-kubeconfig --name ${ENV}-expense'
       }
     }
 

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "expense.fullname" . }}
+  name: {{ .Values.component }}
   labels:
     {{- include "expense.labels" . | nindent 4 }}
 spec:
@@ -24,27 +24,45 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "expense.serviceAccountName" . }}
+      serviceAccountName: {{ .Values.component }}
+      enableServiceLinks: false
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: common
+          emptyDir:
+          sizeLimit: 5Mi
+      initContainers:
+        - name: expense-ps-init-cont
+          image: 206243364202.dkr.ecr.us-east-1.amazonaws.com/expense-ps-init-cont:2.0.0
+          env:
+            - name: PARAMETERS
+              value: { { .Values.PARAMETERS } }
+          imagePullPolicy: always
+          VolumeMounts:
+            - mountPath: /common
+              name: common
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: 206243364202.dkr.ecr.us-east-1.amazonaws.com/{{ .Values.component }}:{{ .Values.APP_VERSION }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          VolumeMounts:
+            - mountPath: /common
+              name: common
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ .Values.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /health
+              port: {{ .Values.port }}
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /health
+              port: {{ .Values.port }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
