@@ -9,7 +9,20 @@ spec:
   containers:
     - name: {{ .Values.component }}
       image: 206243364202.dkr.ecr.us-east-1.amazonaws.com/{{ .Values.component }}:{{ .Values.APP_VERSION }}
-
+      VolumeMounts:
+        - mountPath: /common
+          name: common
   initContainers:
     - name: expense-ps-init-cont
       image: 206243364202.dkr.ecr.us-east-1.amazonaws.com/expense-ps-init-cont:2.0.0
+      env:
+        - name: PARAMETERS
+          value: {{ .Values.PARAMETERS }}
+      imagePullPolicy: always
+      VolumeMounts:
+      - mountPath: /common
+        name: common
+  volumes:
+    - name: common
+      emptyDir:
+      sizeLimit: 5Mi

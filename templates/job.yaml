@@ -1,0 +1,22 @@
+{{- if .Values.schema.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.component }}
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ .Values.component }}
+      containers:
+        - name: schema
+          image: 206243364202.dkr.ecr.us-east-1.amazonaws.com/expense-schema-init-cont:2.0.0
+          env:
+            - name: COMPONENT
+              value: {{ .Values.component }}
+            - name: ENV
+              value: {{ .Values.env }}
+            - name: DB_TYPE
+              value: {{ .Values.schema.DB_TYPE }}
+      restartPolicy: Never
+  backoffLimit: 4
+{{- end }}
